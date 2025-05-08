@@ -55,7 +55,27 @@ def main(base_folder, fer_path, ferplus_path):
             if len(file_name) > 0:
                 image = str_to_image(row[1])
                 image_path = os.path.join(base_folder, folder_names[row[2]], file_name)
-                image.save(image_path, compress_level=0)                
+                # Lista de emoções na ordem dos votos do FERPlus
+                emotion_names = [
+                    "neutral", "happiness", "surprise", "sadness",
+                    "anger", "disgust", "fear", "contempt", "unknown", "NF"
+                ]
+
+                # Dentro do seu loop principal, antes de salvar a imagem:
+                # Pegue os votos das emoções (ajuste o índice conforme seu CSV)
+                votes = list(map(int, ferplus_row[2:12]))
+                emotion_idx = np.argmax(votes)
+                emotion_label = emotion_names[emotion_idx]
+
+                # Crie o caminho da subpasta do sentimento
+                emotion_folder = os.path.join(base_folder, folder_names[row[2]], emotion_label)
+                if not os.path.exists(emotion_folder):
+                    os.makedirs(emotion_folder)
+
+                # Salve a imagem na subpasta correta
+                image_path = os.path.join(emotion_folder, file_name)
+                image.save(image_path, compress_level=0)
+             
             index += 1 
             
     print("Done...")
